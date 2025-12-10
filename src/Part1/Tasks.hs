@@ -43,7 +43,14 @@ myGCD a b = gcd (abs b) (mod (abs a) (abs b))
 -- является ли дата корректной с учётом количества дней в месяце и
 -- вискокосных годов?
 isDateCorrect :: Integer -> Integer -> Integer -> Bool
-isDateCorrect d m y = notImplementedYet
+isDateCorrect d m y = 
+    let isLeapYear = (mod y 4 == 0) && (mod y 100 /= 0 || mod y 400 == 0)
+        upperDayBound month
+            | elem month [1, 3, 5, 7, 8, 10, 12] = 31
+            | elem month [4, 6, 9, 11] = 30
+            | otherwise = if isLeapYear then 29 else 28
+    in
+    d > 0 && d <= upperDayBound m && m > 0 && m <= 12 && y > 0
 
 -- возведение числа в степень, duh
 -- готовые функции и плавающую арифметику использовать нельзя
@@ -54,7 +61,13 @@ myPow a b = a * myPow a (b - 1)
 
 -- является ли данное число простым?
 isPrime :: Integer -> Bool
-isPrime = notImplementedYet
+isPrime
+    num
+        | num <= 1 = False
+        | num == 2 = True
+        | otherwise = all (num `notDivisible`) [2..(num `div` 2)]
+    where notDivisible x y = (mod x y) /= 0
+
 
 type Point2D = (Double, Double)
 
@@ -62,7 +75,12 @@ type Point2D = (Double, Double)
 -- многоугольник задан списком координат
 shapeArea :: [Point2D] -> Double
 --shapeArea points = notImplementedYet
-shapeArea = notImplementedYet
+shapeArea [] = 0.0
+shapeArea points =
+    let calcPair (x1, y1) (x2, y2) = x1 * y2 - x2 * y1
+        pairWindow arr func = zipWith func arr (tail arr ++ [head arr]) in
+    abs (0.5 * sum (pairWindow points calcPair))
+
 
 -- треугольник задан длиной трёх своих сторон.
 -- функция должна вернуть
@@ -71,4 +89,13 @@ shapeArea = notImplementedYet
 --  2, если он прямоугольный
 --  -1, если это не треугольник
 triangleKind :: Double -> Double -> Double -> Integer
-triangleKind a b c = notImplementedYet
+triangleKind a b c =
+    let (big, x, y) = if a > b && a > c then (a, b, c) else if b > c then (b, a, c) else (c, a,b) 
+        bigSqr = big ** 2
+        sidesSqr = x ** 2 + y ** 2
+    in
+    if a + b <= c || b + c <= a || a + c <= b then -1
+    else if bigSqr > sidesSqr then 0
+    else if bigSqr < sidesSqr then 1
+    else 2
+    
