@@ -31,4 +31,15 @@ replaceVar varName replacement expression = expression
 -- Посчитать значение выражения `Term`
 -- если оно состоит только из констант
 evaluate :: Term -> Term
-evaluate = notImplementedYet
+evaluate (BinaryTerm op lhv rhv) =
+   let left = evaluate lhv
+       right = evaluate rhv
+   in
+   case (left, right) of
+      (IntConstant int1, IntConstant int2) -> IntConstant (case op of
+         Plus -> int1 + int2
+         Minus -> int1 - int2
+         Times -> int1 * int2)
+      (_, _) -> BinaryTerm op lhv rhv
+   
+evaluate term = term
